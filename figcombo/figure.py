@@ -265,22 +265,38 @@ class Figure:
 
     # -- Preview --
 
-    def preview(self, block: bool = False) -> None:
+    def preview(self, block: bool = True) -> None:
         """Show an interactive preview of the figure.
+
+        Features:
+        - Actual size / fit-to-window display
+        - Grid overlay toggle (G key)
+        - Panel info on hover
+        - Quick save buttons (PDF/PNG)
+        - Keyboard shortcuts: G=Grid, F=Fit, 1=100%, +/-=Zoom, S=Save, Q=Quit
 
         Parameters
         ----------
         block : bool
-            If True, block until the preview window is closed.
+            If True (default), block until the preview window is closed.
         """
         if self._rendered_figure is None:
             self.render()
 
         from figcombo.preview import show_preview, show_preview_blocking
+
+        preview_kwargs = dict(
+            figure_width_mm=self._width_mm,
+            figure_height_mm=self._height_mm,
+            journal_name=self._journal_spec.get('name', self._journal_key),
+            layout=self._layout,
+            style=self._style,
+        )
+
         if block:
-            show_preview_blocking(self._rendered_figure)
+            show_preview_blocking(self._rendered_figure, **preview_kwargs)
         else:
-            show_preview(self._rendered_figure)
+            show_preview(self._rendered_figure, **preview_kwargs)
 
     # -- Export --
 
