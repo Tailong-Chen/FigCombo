@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "figcombo"
+version = "0.1.0"
+description = "Compose publication-ready multi-panel scientific figures for Nature, Science, Cell and other journals"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Tailong Chen"},
+]
+dependencies = [
+    "matplotlib>=3.7",
+    "numpy>=1.24",
+    "Pillow>=10.0",
+    "seaborn>=0.13",
+]
+
+[project.optional-dependencies]
+preview = ["PyQt5>=5.15"]
+dev = ["pytest>=7.0", "black", "ruff"]
+
+[tool.setuptools.packages.find]
+include = ["figcombo*"]

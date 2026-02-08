@@ -1,0 +1,42 @@
+# Nature journal style preset
+# Usage: plt.style.use('path/to/nature.mplstyle')
+
+# Font
+font.family: sans-serif
+font.sans-serif: Arial, Helvetica, DejaVu Sans
+font.size: 7
+
+# Axes
+axes.labelsize: 7
+axes.titlesize: 8
+axes.linewidth: 0.8
+axes.spines.top: False
+axes.spines.right: False
+
+# Ticks
+xtick.labelsize: 6
+ytick.labelsize: 6
+xtick.major.width: 0.8
+ytick.major.width: 0.8
+xtick.major.size: 3
+ytick.major.size: 3
+xtick.direction: out
+ytick.direction: out
+
+# Lines
+lines.linewidth: 1.0
+lines.markersize: 4
+
+# Legend
+legend.fontsize: 6
+legend.frameon: False
+
+# Figure
+figure.dpi: 150
+savefig.dpi: 300
+savefig.transparent: False
+savefig.bbox: tight
+
+# PDF output - embed editable text
+pdf.fonttype: 42
+ps.fonttype: 42
