@@ -122,6 +122,7 @@ class PlotPanel(BasePanel):
         self.data = data
         self._aspect_ratio = aspect_ratio
         self._plot_kwargs = kwargs
+        self._insets: list[dict[str, Any]] = []
 
     def _resolve_func(self) -> Callable:
         """Resolve the plot function (from registry if needed)."""
@@ -131,13 +132,65 @@ class PlotPanel(BasePanel):
             return get_plot_type(self._plot_type_name)
         raise RuntimeError("No plot function or type name specified")
 
+    def add_inset(
+        self,
+        plot_func: Callable,
+        bounds: tuple[float, float, float, float] = (0.6, 0.6, 0.35, 0.35),
+        data: Any = None,
+        **kwargs: Any,
+    ) -> 'PlotPanel':
+        """Add an inset plot inside this panel.
+
+        Parameters
+        ----------
+        plot_func : callable
+            Inset plot function: func(ax, data, **kwargs) or func(ax).
+        bounds : tuple
+            (x, y, width, height) in axes-fraction coords.
+            Default (0.6, 0.6, 0.35, 0.35) = top-right area.
+        data : any, optional
+            Data for the inset.
+        **kwargs
+            Extra kwargs for plot_func.
+
+        Returns
+        -------
+        self
+        """
+        self._insets.append({
+            'plot_func': plot_func,
+            'bounds': bounds,
+            'data': data,
+            'kwargs': kwargs,
+        })
+        return self
+
     def render(self, ax: Axes) -> None:
-        """Render the plot onto the axes."""
+        """Render the plot onto the axes, then render any insets."""
+        import inspect
+
         func = self._resolve_func()
-        if self.data is not None:
+        sig = inspect.signature(func)
+        params = list(sig.parameters.keys())
+
+        if len(params) >= 2:
             func(ax, self.data, **self._plot_kwargs)
         else:
             func(ax, **self._plot_kwargs)
+
+        # Render insets
+        for inset in self._insets:
+            ax_ins = ax.inset_axes(inset['bounds'])
+            ifunc = inset['plot_func']
+            idata = inset['data']
+            isig = inspect.signature(ifunc)
+            iparams = list(isig.parameters.keys())
+            if len(iparams) >= 2:
+                ifunc(ax_ins, idata, **inset['kwargs'])
+            else:
+                ifunc(ax_ins, **inset['kwargs'])
+            for spine in ax_ins.spines.values():
+                spine.set_linewidth(0.8)
 
     def get_preferred_aspect(self) -> Optional[float]:
         """Return preferred aspect ratio if set."""
