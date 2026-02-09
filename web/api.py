@@ -1142,20 +1142,18 @@ def get_nature_plot_function(plot_type: str):
 def draw_image_placeholder(ax, panel_id: str = ''):
     """Draw a placeholder rectangle for image panels without uploaded images.
 
-    Shows a dashed rectangle filling the entire panel area.
+    Shows a dashed rectangle filling the panel, matching data plot size.
     """
     from matplotlib.patches import Rectangle
 
-    # Fill the entire axes area with light gray background
-    rect_bg = Rectangle((0, 0), 1, 1, fill=True,
-                        facecolor='#f5f5f5', edgecolor='none',
-                        transform=ax.transAxes, zorder=0)
-    ax.add_patch(rect_bg)
+    # Set axis limits to create consistent padding like data plots
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
 
-    # Draw dashed rectangle border filling the entire panel
-    rect = Rectangle((0.02, 0.02), 0.96, 0.96, fill=False,
+    # Draw dashed rectangle border filling most of the panel
+    rect = Rectangle((0.08, 0.12), 0.84, 0.76, fill=False,
                      edgecolor='#999999', linewidth=1.5, linestyle='--',
-                     transform=ax.transAxes, zorder=1)
+                     transform=ax.transAxes)
     ax.add_patch(rect)
 
     # Add placeholder text in center
@@ -1163,11 +1161,9 @@ def draw_image_placeholder(ax, panel_id: str = ''):
             transform=ax.transAxes,
             ha='center', va='center',
             fontsize=9, color='#666666',
-            fontweight='bold', zorder=2)
+            fontweight='bold')
 
-    # Remove axes
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    # Hide all axes elements but keep the frame for consistent sizing
     ax.set_xticks([])
     ax.set_yticks([])
     ax.spines['top'].set_visible(False)
