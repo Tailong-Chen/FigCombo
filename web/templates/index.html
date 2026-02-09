@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FigCombo - 科学图表组合工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .panel h2 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: #667eea;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area i {
+            font-size: 3em;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .upload-area p {
+            color: #666;
+        }
+
+        .file-list {
+            margin-top: 15px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .file-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .file-item .info {
+            flex: 1;
+        }
+
+        .file-item .name {
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .file-item .size {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .file-item .remove {
+            color: #dc3545;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .preview-area {
+            min-height: 400px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .preview-area img {
+            max-width: 100%;
+            max-height: 600px;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .preview-area .placeholder {
+            text-align: center;
+            color: #999;
+        }
+
+        .preview-area .placeholder i {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .panel-config {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .panel-config:hover {
+            border-color: #667eea;
+        }
+
+        .panel-config.active {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .panel-config .id {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+        }
+
+        .panel-config .type {
+            font-size: 11px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .layout-preview {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            white-space: pre;
+            text-align: center;
+            color: #666;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1001;
+            transform: translateX(150%);
+            transition: transform 0.3s;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: #28a745;
+        }
+
+        .toast.error {
+            background: #dc3545;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 FigCombo</h1>
+            <p>科学图表组合工具 - 为 Nature, Science, Cell 等期刊创建出版级多面板图表</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="left-column">
+                <div class="panel">
+                    <h2>📤 上传图片</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <p>📁 拖拽图片到此处 或 点击上传</p>
+                        <p class="help-text">支持 PNG, JPG, TIF, GIF 格式</p>
+                        <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+                    </div>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <div class="panel">
+                    <h2>⚙️ 布局设置</h2>
+                    <div class="form-group">
+                        <label>布局代码</label>
+                        <textarea id="layoutInput" placeholder="例如:
+aab
+aac
+ddd">aab
+aac
+ddd</textarea>
+                        <p class="help-text">使用字母表示面板位置，相同字母合并</p>
+                    </div>
+                    <div class="layout-preview" id="layoutPreview"></div>
+
+                    <div class="form-group">
+                        <label>目标期刊</label>
+                        <select id="journalSelect">
+                            <option value="nature">Nature</option>
+                            <option value="science">Science</option>
+                            <option value="cell">Cell</option>
+                            <option value="pnas">PNAS</option>
+                            <option value="ieee">IEEE</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>图表尺寸</label>
+                        <select id="sizeSelect">
+                            <option value="single">单栏 (Single)</option>
+                            <option value="double" selected>双栏 (Double)</option>
+                            <option value="full">全页 (Full)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>标签样式</label>
+                        <select id="labelStyleSelect">
+                            <option value="lowercase">小写 (a, b, c)</option>
+                            <option value="uppercase">大写 (A, B, C)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h2>🔲 面板配置</h2>
+                    <div class="panel-grid" id="panelGrid"></div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="panel">
+                    <h2>👁️ 预览</h2>
+                    <div class="preview-area" id="previewArea">
+                        <div class="placeholder">
+                            <p>📊</p>
+                            <p>点击"生成图表"查看预览</p>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary" id="generateBtn">🎨 生成图表</button>
+                        <button class="btn btn-success" id="downloadBtn" style="display: none;">⬇️ 下载</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p style="margin-top: 20px; color: #666;">正在生成图表...</p>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // 全局状态
+        const state = {
+            uploadedFiles: [],
+            panelConfigs: {},
+            currentOutput: null
+        };
+
+        // DOM 元素
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const layoutInput = document.getElementById('layoutInput');
+        const layoutPreview = document.getElementById('layoutPreview');
+        const panelGrid = document.getElementById('panelGrid');
+        const previewArea = document.getElementById('previewArea');
+        const generateBtn = document.getElementById('generateBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loading = document.getElementById('loading');
+        const toast = document.getElementById('toast');
+
+        // 初始化
+        function init() {
+            updateLayoutPreview();
+            updatePanelGrid();
+        }
+
+        // 显示提示
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 文件上传
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        async function handleFiles(files) {
+            for (const file of files) {
+                if (!file.type.startsWith('image/')) {
+                    showToast(`跳过非图片文件: ${file.name}`, 'error');
+                    continue;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                try {
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        state.uploadedFiles.push({
+                            ...result,
+                            file: file
+                        });
+                        updateFileList();
+                        showToast(`上传成功: ${result.original_name}`);
+                    } else {
+                        showToast(result.error, 'error');
+                    }
+                } catch (err) {
+                    showToast(`上传失败: ${err.message}`, 'error');
+                }
+            }
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = state.uploadedFiles.map((file, index) => `
+                <div class="file-item">
+                    <img src="${file.url}" alt="${file.original_name}">
+                    <div class="info">
+                        <div class="name">${file.original_name}</div>
+                        <div class="size">${file.width} x ${file.height} px</div>
+                    </div>
+                    <span class="remove" onclick="removeFile(${index})">✕</span>
+                </div>
+            `).join('');
+        }
+
+        window.removeFile = (index) => {
+            state.uploadedFiles.splice(index, 1);
+            updateFileList();
+        };
+
+        // 布局预览
+        layoutInput.addEventListener('input', () => {
+            updateLayoutPreview();
+            updatePanelGrid();
+        });
+
+        function updateLayoutPreview() {
+            const layout = layoutInput.value.trim();
+            layoutPreview.textContent = layout || '（空）';
+        }
+
+        // 面板网格
+        function updatePanelGrid() {
+            const layout = layoutInput.value.trim();
+            const panelIds = [...new Set(layout.replace(/[^a-zA-Z]/g, '').split(''))].sort();
+
+            panelGrid.innerHTML = panelIds.map(id => {
+                const config = state.panelConfigs[id] || { type: 'image' };
+                return `
+                    <div class="panel-config ${config.type === 'image' ? 'active' : ''}" data-id="${id}">
+                        <div class="id">${id.toUpperCase()}</div>
+                        <div class="type">
+                            <select onchange="updatePanelType('${id}', this.value)">
+                                <option value="image" ${config.type === 'image' ? 'selected' : ''}>图片</option>
+                                <option value="plot" ${config.type === 'plot' ? 'selected' : ''}>绘图</option>
+                                <option value="text" ${config.type === 'text' ? 'selected' : ''}>文本</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.updatePanelType = (id, type) => {
+            state.panelConfigs[id] = { ...state.panelConfigs[id], type };
+        };
+
+        // 生成图表
+        generateBtn.addEventListener('click', async () => {
+            loading.classList.add('active');
+
+            const layout = layoutInput.value.trim();
+            const panels = {};
+
+            // 为每个面板分配内容
+            const panelIds = [...new Set(layout.replace(/[^a-zA-Z]/g, '').split(''))];
+            panelIds.forEach((id, index) => {
+                const config = state.panelConfigs[id] || { type: 'image' };
+
+                if (config.type === 'image' && state.uploadedFiles[index]) {
+                    panels[id] = {
+                        type: 'image',
+                        filename: state.uploadedFiles[index].filename
+                    };
+                } else if (config.type === 'plot') {
+                    panels[id] = {
+                        type: 'plot',
+                        plot_type: 'line'
+                    };
+                } else if (config.type === 'text') {
+                    panels[id] = {
+                        type: 'text',
+                        text: `Panel ${id.toUpperCase()}`
+                    };
+                }
+            });
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        layout: layout,
+                        journal: document.getElementById('journalSelect').value,
+                        size: document.getElementById('sizeSelect').value,
+                        label_style: document.getElementById('labelStyleSelect').value,
+                        panels: panels
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    state.currentOutput = result.output_id;
+                    previewArea.innerHTML = `<img src="${result.base64_image}" alt="生成的图表">`;
+                    downloadBtn.style.display = 'inline-block';
+                    showToast('图表生成成功！');
+                } else {
+                    showToast(result.error, 'error');
+                    console.error(result.traceback);
+                }
+            } catch (err) {
+                showToast(`生成失败: ${err.message}`, 'error');
+            } finally {
+                loading.classList.remove('active');
+            }
+        });
+
+        // 下载
+        downloadBtn.addEventListener('click', () => {
+            if (state.currentOutput) {
+                window.open(`/api/download/${state.currentOutput}.png`, '_blank');
+            }
+        });
+
+        // 启动
+        init();
+    </script>
+</body>
+</html>

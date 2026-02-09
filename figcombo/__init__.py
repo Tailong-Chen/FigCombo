@@ -27,6 +27,33 @@ from figcombo.panels.text_panel import TextPanel
 from figcombo.panels.composite_panel import CompositePanel
 from figcombo.knowledge.layout_templates import list_templates
 
+# Import built-in plot types to register them
+from figcombo.plot_types import (
+    # Statistics
+    bar_plot,
+    box_plot,
+    violin_plot,
+    scatter_plot,
+    histogram,
+    cdf_plot,
+    # Bioinformatics
+    volcano_plot,
+    ma_plot,
+    heatmap,
+    pca_plot,
+    enrichment_plot,
+    # Survival
+    kaplan_meier,
+    cumulative_incidence,
+    # Imaging
+    intensity_profile,
+    colocalization_plot,
+    roi_quantification,
+    # Molecular
+    sequence_logo,
+    domain_architecture,
+)
+
 __all__ = [
     'Figure',
     'BasePanel',
@@ -37,4 +64,27 @@ __all__ = [
     'register_plot_type',
     'list_plot_types',
     'list_templates',
+    # Statistics
+    'bar_plot',
+    'box_plot',
+    'violin_plot',
+    'scatter_plot',
+    'histogram',
+    'cdf_plot',
+    # Bioinformatics
+    'volcano_plot',
+    'ma_plot',
+    'heatmap',
+    'pca_plot',
+    'enrichment_plot',
+    # Survival
+    'kaplan_meier',
+    'cumulative_incidence',
+    # Imaging
+    'intensity_profile',
+    'colocalization_plot',
+    'roi_quantification',
+    # Molecular
+    'sequence_logo',
+    'domain_architecture',
 ]

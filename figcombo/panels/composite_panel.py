@@ -134,6 +134,9 @@ class CompositePanel(BasePanel):
         """Render sub-panels into a matplotlib SubGridSpec.
 
         Called by the Renderer when it detects a CompositePanel.
+        After rendering, if a sub-panel turned off its axes (e.g. SEM
+        images), we strip any residual ticks/spines so they don't leak
+        into the layout engine.
         """
         total = self.nrows * self.ncols
         for idx in range(total):
@@ -146,6 +149,15 @@ class CompositePanel(BasePanel):
             ax = fig.add_subplot(sub_gs[r, c])
             self._sub_panels[idx].render(ax)
             self._axes_dict[idx] = ax
+
+            # If the plot function turned off the axes, make sure all
+            # tick labels / spines are truly gone so constrained_layout
+            # doesn't reserve space for them.
+            if not ax.axison:
+                ax.set_xticks([])
+                ax.set_yticks([])
+                for spine in ax.spines.values():
+                    spine.set_visible(False)
 
             if self.show_sub_labels and self.sub_labels and idx < len(self.sub_labels):
                 ax.set_title(

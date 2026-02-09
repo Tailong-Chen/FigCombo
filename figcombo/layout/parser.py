@@ -120,7 +120,7 @@ def parse_ascii_layout(layout_str: str) -> LayoutGrid:
 
 
 def _clean_layout_lines(layout_str: str) -> list[str]:
-    """Clean a layout string: strip, remove empty lines, dedent.
+    """Clean a layout string: strip, remove empty lines, dedent, remove borders.
 
     Returns list of equal-length strings.
     """
@@ -145,10 +145,13 @@ def _clean_layout_lines(layout_str: str) -> list[str]:
     if min_indent == float('inf'):
         min_indent = 0
 
-    # Strip indentation
+    # Strip indentation and remove decorative border characters
+    border_chars = '+|─━┄┅┈┉╌═░▒▓█'
     result = []
     for line in lines:
         cleaned = line[int(min_indent):]
+        # Remove border characters but keep panel labels and spaces
+        cleaned = ''.join(c if c.isalnum() or c in ' .' else ' ' for c in cleaned)
         result.append(cleaned)
 
     # Pad to equal length

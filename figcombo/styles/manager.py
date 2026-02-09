@@ -102,7 +102,8 @@ class StyleManager:
             'figure.dpi': 150,
             'savefig.dpi': 300,
             'savefig.transparent': False,
-            'savefig.bbox': 'tight',
+            # NOTE: Do NOT set savefig.bbox='tight' here — it conflicts
+            # with constrained_layout and can collapse small axes.
             'savefig.pad_inches': 0.02,
 
             # PDF

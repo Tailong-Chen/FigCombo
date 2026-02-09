@@ -95,7 +95,11 @@ class Figure:
         # Parse layout
         self._layout: LayoutGrid | None = None
         if layout is not None:
-            self._layout = parse_ascii_layout(layout)
+            # Convert / to newlines for compact notation
+            layout_str = layout
+            if '/' in layout_str and '\n' not in layout_str:
+                layout_str = layout_str.replace('/', '\n')
+            self._layout = parse_ascii_layout(layout_str)
         elif template is not None:
             tmpl = get_template(template)
             self._layout = parse_ascii_layout(tmpl['ascii'])
