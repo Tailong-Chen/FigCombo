@@ -196,16 +196,13 @@ class Renderer:
         formatted = self.style.format_label(label)
         label_kwargs = self.style.get_label_kwargs()
 
-        # Nature-style positioning: top-left, slightly outside
-        # Use axes coordinates for consistent positioning across all panel sizes
-        # Fixed offset in points for consistent appearance
-        ax.annotate(
+        # Use text() with axes coordinates for consistent positioning
+        # Position slightly outside the top-left corner
+        ax.text(
+            -0.12, 1.08,  # Fixed position relative to axes
             formatted,
-            xy=(0, 1),  # Top-left corner of axes
-            xycoords='axes fraction',
-            xytext=(-8, 8),  # Offset: 8 points left, 8 points up
-            textcoords='offset points',
-            va='bottom',
+            transform=ax.transAxes,
+            va='top',
             ha='right',
             **label_kwargs,
         )
