@@ -19,45 +19,48 @@ const PLOT_TYPES = [
   { id: 'sequence_logo', name: '序列Logo', category: '分子', icon: '🧬' },
 ]
 
-// Nature Journal Layout Templates - Based on 2024-2025 Nature series publications
+// Nature Journal Layout Templates - All layouts are valid rectangular grids
 const TEMPLATES = [
-  // 基础布局
+  // 基础布局 - 标准网格
   { name: '2x2 网格', code: 'ab/cd', desc: '经典四面板', category: '基础' },
   { name: '3x2 网格', code: 'abc/def', desc: '六面板标准布局', category: '基础' },
+  { name: '2x3 网格', code: 'ab/cd/ef', desc: '六面板纵向', category: '基础' },
   { name: '4x2 网格', code: 'abcd/efgh', desc: '八面板密集布局', category: '基础' },
+  { name: '2x4 网格', code: 'ab/cd/ef/gh', desc: '八面板纵向', category: '基础' },
   { name: '3x3 网格', code: 'abc/def/ghi', desc: '九面板显微图布局', category: '基础' },
+  { name: '4x3 网格', code: 'abcd/efgh/ijk', desc: '十二面板大网格', category: '基础' },
 
-  // Nature 主图布局
-  { name: 'Nature Fig1 概览', code: 'aaaaaaaa/bb/cc/dd/ee/ff/gg', desc: '大图概览+6小图验证', category: 'Nature主图' },
-  { name: 'Nature 双大对比', code: 'aaaa/bbbb', desc: 'WT vs Mutant对比', category: 'Nature主图' },
-  { name: 'Nature L型显微', code: 'aaaa/ab/ac/ad', desc: '大显微图+3细节', category: 'Nature主图' },
-  { name: 'Nature 层级数据', code: 'aaa/bbb/cc/dd/ee', desc: '三级数据层次', category: 'Nature主图' },
-  { name: 'Nature 时间序列', code: 'aaa/bbb/ccc/ddd/eee/fff', desc: '6时间点纵向', category: 'Nature主图' },
+  // Nature 主图布局 - 大图+小图组合（都是矩形）
+  { name: 'Nature 大图+右2', code: 'aab/aac', desc: '左大+右2小', category: 'Nature主图' },
+  { name: 'Nature 大图+下3', code: 'aaa/bcd', desc: '上大+下3小', category: 'Nature主图' },
+  { name: 'Nature 双大对比', code: 'aa/bb', desc: 'WT vs Mutant对比', category: 'Nature主图' },
+  { name: 'Nature 2大+2小', code: 'aabb/ccdd', desc: '2大图+2小图', category: 'Nature主图' },
+  { name: 'Nature 左1右3', code: 'abbb/accc', desc: '左1+右3组合', category: 'Nature主图' },
+  { name: 'Nature 上2下3', code: 'aab/ccc', desc: '上2+下3组合', category: 'Nature主图' },
 
   // Western Blot 布局
-  { name: 'WB+定量 标准', code: 'aaaa/aaaa/bb/cc/dd', desc: '双膜+3定量图', category: 'Western Blot' },
-  { name: 'WB 多靶点', code: 'aaaa/bbbb/cccc/dddd', desc: '4靶点完整图', category: 'Western Blot' },
-  { name: 'WB 剂量梯度', code: 'aaaaa/bbbbb/ccccc/ddddd/eeeee', desc: '5剂量梯度', category: 'Western Blot' },
+  { name: 'WB 双膜+2定量', code: 'aaaa/bbbb/cc/dd', desc: '双膜+2定量图', category: 'Western Blot' },
+  { name: 'WB 3膜横向', code: 'aaa/bbb/ccc', desc: '3靶点横向', category: 'Western Blot' },
+  { name: 'WB 2x2网格', code: 'aa/bb/cc/dd', desc: '4膜2x2网格', category: 'Western Blot' },
 
   // 显微图布局
-  { name: '多通道荧光', code: 'aa/bb/cc/dd/ee', desc: 'DAPI+通道+Merge+正交', category: '显微图' },
-  { name: '大图+Zoom系列', code: 'aaaa/aa/bb/cc/dd/ee/ff', desc: '概览+6细节放大', category: '显微图' },
-  { name: '3x3 显微网格', code: 'abc/def/ghi', desc: '9图显微阵列', category: '显微图' },
+  { name: '显微 2x2通道', code: 'ab/cd', desc: '4通道2x2', category: '显微图' },
+  { name: '显微 2x3通道', code: 'ab/cd/ef', desc: '6通道2x3', category: '显微图' },
+  { name: '显微 大图+右2', code: 'aab/aac', desc: '大图+2细节', category: '显微图' },
 
   // 生物信息学
-  { name: '火山+MA图', code: 'aaaa/aaaa/bbbb/bbbb', desc: '差异表达标准组合', category: '生物信息' },
-  { name: 'UMAP+特征', code: 'aa/bb/cc/dd/ee/ff', desc: '单细胞6面板', category: '生物信息' },
-  { name: '基因组浏览器', code: 'aaaa/bb/cc/ddd/eee', desc: '基因组轨道+热图', category: '生物信息' },
-  { name: '通路网络', code: 'aaaaaaaa/bbbb/cccc/dddd/eeee', desc: '大网络+4富集图', category: '生物信息' },
+  { name: '火山+MA 左1右1', code: 'aa/bb', desc: '差异表达2图', category: '生物信息' },
+  { name: '热图+UMAP 2x2', code: 'ab/cd', desc: '单细胞4图', category: '生物信息' },
+  { name: '基因组 3行轨道', code: 'aa/bb/cc', desc: '3轨道纵向', category: '生物信息' },
 
   // 补充图布局
-  { name: '补充图 4x2', code: 'aa/bb/cc/dd/ee/ff/gg/hh', desc: '8图密集补充', category: '补充图' },
-  { name: '补充定量 6图', code: 'aa/bb/cc/dd/ee/ff', desc: '6统计补充图', category: '补充图' },
+  { name: '补充 4x2网格', code: 'abcd/efgh', desc: '8图密集补充', category: '补充图' },
+  { name: '补充 3x2网格', code: 'abc/def', desc: '6图标准补充', category: '补充图' },
+  { name: '补充 2x3网格', code: 'ab/cd/ef', desc: '6图纵向补充', category: '补充图' },
 
   // 复杂布局
-  { name: '机制示意图', code: 'aaaaaa/aa/bb/cc', desc: '机制+3验证', category: '复杂' },
-  { name: '2x4 宽屏', code: 'abcd/efgh', desc: '8图宽屏布局', category: '复杂' },
-  { name: '纵向5图', code: 'a/b/c/d/e', desc: '垂直5面板', category: '复杂' },
+  { name: '复杂 3行混合', code: 'aab/ccd/def', desc: '3行不同宽度', category: '复杂' },
+  { name: '复杂 4行混合', code: 'aa/bc/def/ghi', desc: '4行递减', category: '复杂' },
 ]
 
 interface PanelConfig {
