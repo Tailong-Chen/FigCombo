@@ -64,12 +64,11 @@ const TEMPLATES = [
 ]
 
 interface PanelConfig {
-  type: 'empty' | 'plot' | 'image' | 'text' | 'custom_code'
+  type: 'empty' | 'plot' | 'image' | 'text'
   plotType?: string
   title?: string
   data?: any
-  codeFile?: string
-  functionName?: string
+  imageUrl?: string
 }
 
 async function parseLayout(layout: string) {
@@ -334,8 +333,7 @@ function App() {
                                 ${isSelected ? 'ring-2 ring-yellow-400' : ''}
                                 ${config?.type === 'plot' ? 'bg-green-500' :
                                   config?.type === 'image' ? 'bg-purple-500' :
-                                  config?.type === 'text' ? 'bg-orange-500' :
-                                  config?.type === 'custom_code' ? 'bg-pink-500' : 'bg-blue-500'}
+                                  config?.type === 'text' ? 'bg-orange-500' : 'bg-blue-500'}
                                 text-white
                               `}
                               style={{
@@ -421,10 +419,9 @@ function App() {
                     className="w-full p-2 border rounded"
                   >
                     <option value="empty">空面板</option>
-                    <option value="plot">数据图表</option>
-                    <option value="image">图片</option>
+                    <option value="plot">内置图表</option>
+                    <option value="image">上传图片 (Python/R/MATLAB生成)</option>
                     <option value="text">文本</option>
-                    <option value="custom_code">自定义Python代码</option>
                   </select>
                 </div>
 
@@ -453,42 +450,43 @@ function App() {
                   </div>
                 )}
 
-                {/* Custom Code Configuration */}
-                {panelConfigs[selectedPanel]?.type === 'custom_code' && (
+                {/* Image Upload Configuration */}
+                {panelConfigs[selectedPanel]?.type === 'image' && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium mb-2">Python代码</label>
-                    <div className="p-3 bg-gray-50 rounded border text-sm">
-                      <p className="text-gray-600 mb-2">
-                        上传Python文件，包含绘图函数：
+                    <label className="block text-sm font-medium mb-2">上传图片</label>
+                    <div className="p-3 bg-blue-50 rounded border border-blue-200 text-sm">
+                      <p className="text-blue-700 mb-2">
+                        <strong>支持格式:</strong> PNG, JPG, TIFF
                       </p>
-                      <code className="block bg-gray-100 p-2 rounded text-xs mb-2">
-                        {`def my_plot(ax):
-    # 你的绘图代码
-    ax.plot([1, 2, 3], [1, 4, 9])
-    ax.set_title('My Data')`}
-                      </code>
+                      <p className="text-gray-600 mb-2 text-xs">
+                        使用你自己的Python/R/MATLAB代码生成图表，然后上传
+                      </p>
                       <input
                         type="file"
-                        accept=".py"
+                        accept=".png,.jpg,.jpeg,.tif,.tiff"
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (file) {
+                            // Create local URL for preview
+                            const url = URL.createObjectURL(file)
                             updatePanelConfig(selectedPanel, {
-                              codeFile: file.name,
-                              functionName: 'my_plot'
+                              imageUrl: url,
+                              imageFile: file
                             })
                           }
                         }}
                         className="w-full text-sm"
                       />
                     </div>
-                    <input
-                      type="text"
-                      value={panelConfigs[selectedPanel]?.functionName || ''}
-                      onChange={(e) => updatePanelConfig(selectedPanel, { functionName: e.target.value })}
-                      className="w-full p-2 border rounded mt-2"
-                      placeholder="函数名 (如: my_plot)"
-                    />
+                    {panelConfigs[selectedPanel]?.imageUrl && (
+                      <div className="mt-2 p-2 border rounded">
+                        <img
+                          src={panelConfigs[selectedPanel].imageUrl}
+                          alt="预览"
+                          className="max-h-32 mx-auto"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
