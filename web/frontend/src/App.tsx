@@ -19,13 +19,45 @@ const PLOT_TYPES = [
   { id: 'sequence_logo', name: '序列Logo', category: '分子', icon: '🧬' },
 ]
 
-// Layout templates
+// Nature Journal Layout Templates - Based on 2024-2025 Nature series publications
 const TEMPLATES = [
-  { name: '2x2 网格', code: 'ab/cd', desc: '经典四面板' },
-  { name: '大图+小图', code: 'aab/aac/ddd', desc: 'Nature风格' },
-  { name: '横向三图', code: 'abc/def', desc: '六面板网格' },
-  { name: '纵向三图', code: 'a/b/c', desc: '垂直排列' },
-  { name: 'L型布局', code: 'aa/bc', desc: 'L-shaped' },
+  // 基础布局
+  { name: '2x2 网格', code: 'ab/cd', desc: '经典四面板', category: '基础' },
+  { name: '3x2 网格', code: 'abc/def', desc: '六面板标准布局', category: '基础' },
+  { name: '4x2 网格', code: 'abcd/efgh', desc: '八面板密集布局', category: '基础' },
+  { name: '3x3 网格', code: 'abc/def/ghi', desc: '九面板显微图布局', category: '基础' },
+
+  // Nature 主图布局
+  { name: 'Nature Fig1 概览', code: 'aaaaaaaa/bb/cc/dd/ee/ff/gg', desc: '大图概览+6小图验证', category: 'Nature主图' },
+  { name: 'Nature 双大对比', code: 'aaaa/bbbb', desc: 'WT vs Mutant对比', category: 'Nature主图' },
+  { name: 'Nature L型显微', code: 'aaaa/ab/ac/ad', desc: '大显微图+3细节', category: 'Nature主图' },
+  { name: 'Nature 层级数据', code: 'aaa/bbb/cc/dd/ee', desc: '三级数据层次', category: 'Nature主图' },
+  { name: 'Nature 时间序列', code: 'aaa/bbb/ccc/ddd/eee/fff', desc: '6时间点纵向', category: 'Nature主图' },
+
+  // Western Blot 布局
+  { name: 'WB+定量 标准', code: 'aaaa/aaaa/bb/cc/dd', desc: '双膜+3定量图', category: 'Western Blot' },
+  { name: 'WB 多靶点', code: 'aaaa/bbbb/cccc/dddd', desc: '4靶点完整图', category: 'Western Blot' },
+  { name: 'WB 剂量梯度', code: 'aaaaa/bbbbb/ccccc/ddddd/eeeee', desc: '5剂量梯度', category: 'Western Blot' },
+
+  // 显微图布局
+  { name: '多通道荧光', code: 'aa/bb/cc/dd/ee', desc: 'DAPI+通道+Merge+正交', category: '显微图' },
+  { name: '大图+Zoom系列', code: 'aaaa/aa/bb/cc/dd/ee/ff', desc: '概览+6细节放大', category: '显微图' },
+  { name: '3x3 显微网格', code: 'abc/def/ghi', desc: '9图显微阵列', category: '显微图' },
+
+  // 生物信息学
+  { name: '火山+MA图', code: 'aaaa/aaaa/bbbb/bbbb', desc: '差异表达标准组合', category: '生物信息' },
+  { name: 'UMAP+特征', code: 'aa/bb/cc/dd/ee/ff', desc: '单细胞6面板', category: '生物信息' },
+  { name: '基因组浏览器', code: 'aaaa/bb/cc/ddd/eee', desc: '基因组轨道+热图', category: '生物信息' },
+  { name: '通路网络', code: 'aaaaaaaa/bbbb/cccc/dddd/eeee', desc: '大网络+4富集图', category: '生物信息' },
+
+  // 补充图布局
+  { name: '补充图 4x2', code: 'aa/bb/cc/dd/ee/ff/gg/hh', desc: '8图密集补充', category: '补充图' },
+  { name: '补充定量 6图', code: 'aa/bb/cc/dd/ee/ff', desc: '6统计补充图', category: '补充图' },
+
+  // 复杂布局
+  { name: '机制示意图', code: 'aaaaaa/aa/bb/cc', desc: '机制+3验证', category: '复杂' },
+  { name: '2x4 宽屏', code: 'abcd/efgh', desc: '8图宽屏布局', category: '复杂' },
+  { name: '纵向5图', code: 'a/b/c/d/e', desc: '垂直5面板', category: '复杂' },
 ]
 
 interface PanelConfig {
@@ -218,22 +250,32 @@ function App() {
 
             {/* Templates */}
             <div className="bg-white rounded-lg shadow p-4">
-              <h2 className="text-lg font-semibold mb-3">快速模板</h2>
-              <div className="space-y-2">
-                {TEMPLATES.map(t => (
-                  <button
-                    key={t.name}
-                    onClick={() => {
-                      setLayoutCode(t.code)
-                      setTimeout(handleParse, 100)
-                    }}
-                    className="w-full text-left p-2 hover:bg-gray-100 rounded text-sm border"
-                  >
-                    <div className="font-medium">{t.name}</div>
-                    <div className="text-xs text-gray-500">{t.desc}</div>
-                    <code className="text-xs bg-gray-100 px-1 rounded">{t.code}</code>
-                  </button>
-                ))}
+              <h2 className="text-lg font-semibold mb-3">快速模板 ({TEMPLATES.length}个)</h2>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {['基础', 'Nature主图', 'Western Blot', '显微图', '生物信息', '补充图', '复杂'].map(category => {
+                  const categoryTemplates = TEMPLATES.filter(t => t.category === category)
+                  if (categoryTemplates.length === 0) return null
+                  return (
+                    <div key={category}>
+                      <div className="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">{category}</div>
+                      <div className="space-y-1">
+                        {categoryTemplates.map(t => (
+                          <button
+                            key={t.name}
+                            onClick={() => {
+                              setLayoutCode(t.code)
+                              setTimeout(handleParse, 100)
+                            }}
+                            className="w-full text-left p-2 hover:bg-blue-50 rounded text-sm border border-gray-200 transition-colors"
+                          >
+                            <div className="font-medium text-gray-800">{t.name}</div>
+                            <div className="text-xs text-gray-500">{t.desc}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           </div>
