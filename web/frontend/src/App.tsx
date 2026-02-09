@@ -64,11 +64,17 @@ const TEMPLATES = [
 ]
 
 interface PanelConfig {
-  type: 'empty' | 'plot' | 'image' | 'text'
+  type: 'empty' | 'plot' | 'image' | 'text' | 'custom_data'
   plotType?: string
   title?: string
   data?: any
   imageUrl?: string
+  // For custom data upload
+  dataFile?: File
+  dataUrl?: string
+  xColumn?: string
+  yColumn?: string
+  groupColumn?: string
 }
 
 async function parseLayout(layout: string) {
@@ -332,6 +338,7 @@ function App() {
                                 transition-all hover:scale-105
                                 ${isSelected ? 'ring-2 ring-yellow-400' : ''}
                                 ${config?.type === 'plot' ? 'bg-green-500' :
+                                  config?.type === 'custom_data' ? 'bg-cyan-500' :
                                   config?.type === 'image' ? 'bg-purple-500' :
                                   config?.type === 'text' ? 'bg-orange-500' : 'bg-blue-500'}
                                 text-white
@@ -419,8 +426,9 @@ function App() {
                     className="w-full p-2 border rounded"
                   >
                     <option value="empty">空面板</option>
-                    <option value="plot">内置图表</option>
-                    <option value="image">上传图片 (Python/R/MATLAB生成)</option>
+                    <option value="plot">内置图表（示例数据）</option>
+                    <option value="custom_data">上传数据生成图表</option>
+                    <option value="image">图片占位</option>
                     <option value="text">文本</option>
                   </select>
                 </div>
@@ -450,41 +458,88 @@ function App() {
                   </div>
                 )}
 
-                {/* Image Upload Configuration */}
-                {panelConfigs[selectedPanel]?.type === 'image' && (
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-2">上传图片</label>
+                {/* Custom Data Upload Configuration */}
+                {panelConfigs[selectedPanel]?.type === 'custom_data' && (
+                  <div className="mb-4 space-y-3">
+                    <label className="block text-sm font-medium">上传数据文件</label>
+
+                    {/* Data File Upload */}
                     <div className="p-3 bg-blue-50 rounded border border-blue-200 text-sm">
                       <p className="text-blue-700 mb-2">
-                        <strong>支持格式:</strong> PNG, JPG, TIFF
+                        <strong>支持格式:</strong> CSV, JSON, TXT
                       </p>
                       <p className="text-gray-600 mb-2 text-xs">
-                        使用你自己的Python/R/MATLAB代码生成图表，然后上传
+                        上传你的数据文件，系统将自动生成图表
                       </p>
                       <input
                         type="file"
-                        accept=".png,.jpg,.jpeg,.tif,.tiff"
+                        accept=".csv,.json,.txt"
                         onChange={(e) => {
                           const file = e.target.files?.[0]
                           if (file) {
-                            // Create local URL for preview
-                            const url = URL.createObjectURL(file)
-                            updatePanelConfig(selectedPanel, {
-                              imageUrl: url,
-                              imageFile: file
-                            })
+                            updatePanelConfig(selectedPanel, { dataFile: file })
                           }
                         }}
                         className="w-full text-sm"
                       />
                     </div>
-                    {panelConfigs[selectedPanel]?.imageUrl && (
-                      <div className="mt-2 p-2 border rounded">
-                        <img
-                          src={panelConfigs[selectedPanel].imageUrl}
-                          alt="预览"
-                          className="max-h-32 mx-auto"
+
+                    {/* Chart Type Selection */}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">图表类型</label>
+                      <select
+                        value={panelConfigs[selectedPanel]?.plotType || 'scatter_plot'}
+                        onChange={(e) => updatePanelConfig(selectedPanel, { plotType: e.target.value })}
+                        className="w-full p-2 border rounded text-sm"
+                      >
+                        <option value="scatter_plot">散点图 (Scatter)</option>
+                        <option value="line_plot">折线图 (Line)</option>
+                        <option value="bar_plot">条形图 (Bar)</option>
+                        <option value="histogram">直方图 (Histogram)</option>
+                        <option value="box_plot">箱线图 (Box)</option>
+                      </select>
+                    </div>
+
+                    {/* Column Selection */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-medium mb-1">X轴列名</label>
+                        <input
+                          type="text"
+                          value={panelConfigs[selectedPanel]?.xColumn || ''}
+                          onChange={(e) => updatePanelConfig(selectedPanel, { xColumn: e.target.value })}
+                          className="w-full p-2 border rounded text-sm"
+                          placeholder="如: time"
                         />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Y轴列名</label>
+                        <input
+                          type="text"
+                          value={panelConfigs[selectedPanel]?.yColumn || ''}
+                          onChange={(e) => updatePanelConfig(selectedPanel, { yColumn: e.target.value })}
+                          className="w-full p-2 border rounded text-sm"
+                          placeholder="如: value"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Group Column (optional) */}
+                    <div>
+                      <label className="block text-xs font-medium mb-1">分组列名 (可选)</label>
+                      <input
+                        type="text"
+                        value={panelConfigs[selectedPanel]?.groupColumn || ''}
+                        onChange={(e) => updatePanelConfig(selectedPanel, { groupColumn: e.target.value })}
+                        className="w-full p-2 border rounded text-sm"
+                        placeholder="如: group, condition"
+                      />
+                    </div>
+
+                    {/* Data Preview */}
+                    {panelConfigs[selectedPanel]?.dataFile && (
+                      <div className="p-2 bg-green-50 rounded text-xs text-green-700">
+                        ✓ 已选择文件: {panelConfigs[selectedPanel].dataFile.name}
                       </div>
                     )}
                   </div>
