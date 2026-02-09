@@ -64,10 +64,12 @@ const TEMPLATES = [
 ]
 
 interface PanelConfig {
-  type: 'empty' | 'plot' | 'image' | 'text'
+  type: 'empty' | 'plot' | 'image' | 'text' | 'custom_code'
   plotType?: string
   title?: string
   data?: any
+  codeFile?: string
+  functionName?: string
 }
 
 async function parseLayout(layout: string) {
@@ -332,7 +334,8 @@ function App() {
                                 ${isSelected ? 'ring-2 ring-yellow-400' : ''}
                                 ${config?.type === 'plot' ? 'bg-green-500' :
                                   config?.type === 'image' ? 'bg-purple-500' :
-                                  config?.type === 'text' ? 'bg-orange-500' : 'bg-blue-500'}
+                                  config?.type === 'text' ? 'bg-orange-500' :
+                                  config?.type === 'custom_code' ? 'bg-pink-500' : 'bg-blue-500'}
                                 text-white
                               `}
                               style={{
@@ -421,6 +424,7 @@ function App() {
                     <option value="plot">数据图表</option>
                     <option value="image">图片</option>
                     <option value="text">文本</option>
+                    <option value="custom_code">自定义Python代码</option>
                   </select>
                 </div>
 
@@ -446,6 +450,45 @@ function App() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Custom Code Configuration */}
+                {panelConfigs[selectedPanel]?.type === 'custom_code' && (
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium mb-2">Python代码</label>
+                    <div className="p-3 bg-gray-50 rounded border text-sm">
+                      <p className="text-gray-600 mb-2">
+                        上传Python文件，包含绘图函数：
+                      </p>
+                      <code className="block bg-gray-100 p-2 rounded text-xs mb-2">
+                        {`def my_plot(ax):
+    # 你的绘图代码
+    ax.plot([1, 2, 3], [1, 4, 9])
+    ax.set_title('My Data')`}
+                      </code>
+                      <input
+                        type="file"
+                        accept=".py"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            updatePanelConfig(selectedPanel, {
+                              codeFile: file.name,
+                              functionName: 'my_plot'
+                            })
+                          }
+                        }}
+                        className="w-full text-sm"
+                      />
+                    </div>
+                    <input
+                      type="text"
+                      value={panelConfigs[selectedPanel]?.functionName || ''}
+                      onChange={(e) => updatePanelConfig(selectedPanel, { functionName: e.target.value })}
+                      className="w-full p-2 border rounded mt-2"
+                      placeholder="函数名 (如: my_plot)"
+                    />
                   </div>
                 )}
 
